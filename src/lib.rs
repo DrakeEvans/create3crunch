@@ -28,12 +28,13 @@ pub struct Config {
     pub max_create3_nonce: u8,
     pub leading_zeroes_threshold: Option<u8>,
     pub total_zeroes_threshold: Option<u8>,
+    pub output_file: String,
 }
 
 /// Given a Config object with a factory address, a caller address, a keccak-256
 /// hash of the contract initialization code, and a device ID, search for salts
 /// using OpenCL that will enable the factory contract to deploy a contract to a
-/// gas-efficient address via CREATE2. This method also takes threshold values
+/// gas-efficient address via CREATE3. This method also takes threshold values
 /// for both leading zero bytes and total zero bytes - any address that does not
 /// meet or exceed the threshold will not be returned. Default threshold values
 /// are three leading zeroes or five total zeroes.
@@ -58,7 +59,7 @@ pub fn gpu(config: Config) -> ocl::Result<()> {
     );
 
     // (create if necessary) and open a file where found salts will be written
-    let file = output_file();
+    let file = output_file(&config.output_file);
 
     // create object for computing rewards (relative rarity) for a given address
     let rewards = Reward::new();
@@ -317,7 +318,8 @@ pub fn gpu(config: Config) -> ocl::Result<()> {
 
             file.lock_exclusive().expect("Couldn't lock file.");
 
-            writeln!(&file, "{output}").expect("Couldn't write to `efficient_addresses.txt` file.");
+            writeln!(&file, "{output}")
+                .unwrap_or_else(|_| panic!("Couldn't write to `{}` file.", config.output_file));
 
             file.unlock().expect("Couldn't unlock file.");
             found += 1;
@@ -326,13 +328,13 @@ pub fn gpu(config: Config) -> ocl::Result<()> {
 }
 
 #[track_caller]
-fn output_file() -> File {
+fn output_file(path: &str) -> File {
     OpenOptions::new()
         .append(true)
         .create(true)
         .read(true)
-        .open("efficient_addresses.txt")
-        .expect("Could not create or open `efficient_addresses.txt` file.")
+        .open(path)
+        .unwrap_or_else(|_| panic!("Could not create or open `{}` file.", path))
 }
 
 /// Creates the OpenCL kernel source code by populating the template with the
@@ -369,16 +371,4 @@ fn mk_kernel_src(config: &Config) -> String {
     src.push_str(KERNEL_SRC);
 
     src
-}
-
-fn nonces_from_bitmap(bitmap: &[u64]) -> Vec<u8> {
-    let mut nonces = vec![];
-    for (i, word) in bitmap.iter().enumerate() {
-        nonces.extend(
-            (0..64u8)
-                .filter(|bit| (word & (1 << bit)) != 0)
-                .map(|bit| (64 * i as u8) + bit),
-        );
-    }
-    nonces
 }

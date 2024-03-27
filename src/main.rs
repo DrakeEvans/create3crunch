@@ -54,6 +54,14 @@ struct Args {
 
     #[arg(short, long, value_parser=parse_worksize, default_value_t=0x4000000, help="Specifies the GPU work size, min. 0x1540000")]
     work_size: u32,
+
+    #[arg(
+        short,
+        long,
+        default_value = "efficient_addresses.txt",
+        help = "The file to output efficient addresses to"
+    )]
+    output_file: String,
 }
 
 impl TryInto<Config> for Args {
@@ -78,6 +86,7 @@ impl TryInto<Config> for Args {
             leading_zeroes_threshold: self.leading_zeros,
             total_zeroes_threshold: self.total_zeros,
             max_create3_nonce: self.max_create3_nonce,
+            output_file: self.output_file,
         })
     }
 }
