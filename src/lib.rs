@@ -279,6 +279,7 @@ pub fn gpu(config: Config) -> ocl::Result<()> {
         // iterate over each solution, first converting to a fixed array
 
         if solutions[0] != 0 {
+            let create1_nonce = solutions[1];
             let create2_nonce = solutions[0].to_le_bytes();
             let mut create2_salt = [0u8; 32];
             create2_salt[0..20].copy_from_slice(&config.owner[..]);
@@ -287,7 +288,7 @@ pub fn gpu(config: Config) -> ocl::Result<()> {
             let deployer = config
                 .factory
                 .create2(&create2_salt, &config.init_code_hash);
-            let address = deployer.create(solutions[1]);
+            let address = deployer.create(create1_nonce.into());
 
             // count total and leading zero bytes
             let mut total = 0;
@@ -306,7 +307,7 @@ pub fn gpu(config: Config) -> ocl::Result<()> {
             let output = format!(
                 "0x{} ({}) => {} => {}",
                 hex::encode(create2_salt),
-                solutions[1],
+                create1_nonce,
                 address,
                 reward
             );
