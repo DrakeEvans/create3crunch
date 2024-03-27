@@ -14,8 +14,6 @@ use std::io::prelude::*;
 use std::time::{SystemTime, UNIX_EPOCH};
 use terminal_size::{terminal_size, Height};
 
-const WORK_SIZE: u32 = 0x4000000; // max. 0x15400000 to abs. max 0xffffffff
-
 mod reward;
 pub use reward::Reward;
 
@@ -93,9 +91,10 @@ pub fn gpu(config: Config) -> ocl::Result<()> {
     // set up the queue to use
     let queue = Queue::new(&context, device, None)?;
 
+    let work_size = config.work_size;
     // set up the "proqueue" (or amalgamation of various elements) to use
-    let ocl_pq = ProQue::new(context, queue, program, Some(config.work_size));
-    let work_factor = (config.work_size as u128) / 1_000_000;
+    let ocl_pq = ProQue::new(context, queue, program, Some(work_size));
+    let work_factor = (work_size as u128) / 1_000_000;
 
     // create a random number generator
     let mut rng = thread_rng();
@@ -210,7 +209,7 @@ pub fn gpu(config: Config) -> ocl::Result<()> {
                     total_runtime_mins,
                     total_runtime_secs,
                     cumulative_nonce,
-                    config.work_size.separated_string(),
+                    work_size.separated_string(),
                 ))?;
 
                 // display information about the attempt rate and found solutions

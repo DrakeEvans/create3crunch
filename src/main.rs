@@ -5,7 +5,7 @@ use create3crunch::{gpu, Config};
 
 fn parse_worksize(s: &str) -> Result<u32, String> {
     let work_size = maybe_hex::<u32>(s)?;
-    if work_size < 0x15400000 {
+    if work_size < 0x1540000 {
         return Err("Work size cannot be below 0x15400000".to_string());
     }
     Ok(work_size)
@@ -52,7 +52,7 @@ struct Args {
     )]
     max_create3_nonce: u8,
 
-    #[arg(short, long, value_parser=parse_worksize)]
+    #[arg(short, long, value_parser=parse_worksize, default_value_t=0x4000000)]
     work_size: u32,
 }
 
