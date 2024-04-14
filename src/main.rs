@@ -68,12 +68,6 @@ impl TryInto<Config> for Args {
     type Error = String;
 
     fn try_into(self) -> Result<Config, Self::Error> {
-        if self.max_create3_nonce >= 0x80 {
-            return Err(format!(
-                "Create3 Nonces up to {} not supported",
-                self.max_create3_nonce
-            ));
-        }
         if self.leading_zeros.is_none() && self.total_zeros.is_none() {
             return Err("Must specify at least either the total zeros or leading zeros threshold, cannot leave both empty".to_string());
         }
