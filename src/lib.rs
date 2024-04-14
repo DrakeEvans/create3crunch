@@ -308,7 +308,7 @@ pub fn gpu(config: Config) -> ocl::Result<()> {
             let output = format!(
                 "0x{} ({}) => {} => {}",
                 hex::encode(create2_salt),
-                create1_nonce,
+                create1_nonce - 1,
                 address,
                 reward
             );
