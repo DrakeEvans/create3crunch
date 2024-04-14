@@ -52,11 +52,11 @@ struct Args {
     )]
     max_create3_nonce: u8,
 
-    #[arg(short, long, value_parser=parse_worksize, default_value_t=0x4000000, help="Specifies the GPU work size, min. 0x1540000")]
+    #[arg(short, long, value_parser=parse_worksize, default_value_t=0x4000000, help="Specifies the GPU work size, min. 0x154000")]
     work_size: u32,
 
     #[arg(
-        short,
+        short = 'p',
         long,
         default_value = "efficient_addresses.txt",
         help = "The file to output efficient addresses to"
