@@ -90,7 +90,7 @@ pub fn gpu(config: Config) -> ocl::Result<()> {
         .build(&context)?;
 
     // set up the queue to use
-    let queue = Queue::new(&context, device, None)?;
+    let queue = Queue::new(&context, device, None)?; 
 
     let work_size = config.work_size;
     // set up the "proqueue" (or amalgamation of various elements) to use
@@ -369,6 +369,9 @@ fn mk_kernel_src(config: &Config) -> String {
     writeln!(src, "#define MAX_NONCE {}u", config.max_create3_nonce).unwrap();
 
     src.push_str(KERNEL_SRC);
+    // print src to file
+    let mut file = File::create("kernel_src.cl").unwrap();
+    file.write_all(src.as_bytes()).unwrap();
 
     src
 }

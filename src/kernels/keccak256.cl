@@ -199,6 +199,8 @@ static inline void keccakf(ulong *a)
   (!(d[16])) + (!(d[17])) + (!(d[18])) + (!(d[19])) \
 >= TOTAL_ZEROES)
 
+#define HAS_LAST_THREE_EQUAL_TO(d) ((d[17] == 0xa9) && (d[18] == 0x01) && (d[19] == 0x2a))
+
 #if LEADING_ZEROES == 8
 #define hasLeading(d) (!(((uint*)d)[0]) && !(((uint*)d)[1]))
 #elif LEADING_ZEROES == 7
@@ -214,7 +216,7 @@ static inline void keccakf(ulong *a)
 #elif LEADING_ZEROES == 2
 #define hasLeading(d) (!(((uint*)d)[0] & 0x0000ffffu))
 #elif LEADING_ZEROES == 1
-#define hasLeading(d) (!(((uint*)d)[0] & 0x000000ffu))
+#define hasLeading(d) (!(((uint*)d)[0] & 0x000000ffu)) 
 #else
 static inline bool hasLeading(uchar const *d)
 {
@@ -380,7 +382,7 @@ __kernel void hashMessage(
     keccakf(spongeBuffer);
 
     // determine if the address meets the constraints
-    if (SUCCESS_CONDITION()) {
+    if (HAS_LAST_THREE_EQUAL_TO(digest) && hasLeading(digest)) {
       solutions[0] = nonce.uint64_t;
       solutions[1] = (ulong) create1Nonce;
       break;
