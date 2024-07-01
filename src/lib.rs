@@ -80,7 +80,7 @@ pub fn gpu(config: Config) -> ocl::Result<()> {
     // track how many addresses have been found and information about them
     let mut found: u64 = 0;
     let mut found_list: Vec<String> = vec![];
-
+    
     // set up a controller for terminal output
     let term = Term::stdout();
 
