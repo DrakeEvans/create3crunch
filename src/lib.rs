@@ -13,6 +13,10 @@ use std::fs::{File, OpenOptions};
 use std::io::prelude::*;
 use std::time::{SystemTime, UNIX_EPOCH};
 use terminal_size::{terminal_size, Height};
+use reqwest::blocking::Client;
+use tokio;
+use serde_json::json;
+use std::env; // Import the env module
 
 mod reward;
 pub use reward::Reward;
@@ -57,6 +61,15 @@ pub fn gpu(config: Config) -> ocl::Result<()> {
         "Setting up experimental OpenCL miner using device {}...",
         config.gpu_device
     );
+
+    let client = Client::new();
+    let webhook_url = env::var("WEBHOOK_URL").expect("WEBHOOK_URL must be set");
+
+    let payload = json!({ "text": "Starting GPU mining" });
+    client.post(webhook_url.clone())
+    .json(&payload)
+    .send()
+    .expect("Failed to send request");
 
     // (create if necessary) and open a file where found salts will be written
     let file = output_file(&config.output_file);
@@ -312,6 +325,14 @@ pub fn gpu(config: Config) -> ocl::Result<()> {
                 address,
                 reward
             );
+
+            // Send the output to the webhook
+            let payload = json!({ "text": output });
+            client.post(webhook_url.clone())
+            .json(&payload)
+            .send()
+            .expect("Failed to send request");
+
 
             let show = format!("{output} ({leading} / {total})");
             found_list.push(show.to_string());

@@ -14,9 +14,12 @@ console = "0.15"
 fs4 = "0.7"
 ocl = "0.19"
 rand = "0.8"
+reqwest = { version = "0.12.5", features = ["blocking", "json"] }
 rustc-hash = "1.1"
 separator = "0.4.1"
+serde_json = "1.0.119"
 terminal_size = "0.3.0"
+tokio = { version = "1.38.0", features = ["full"] }
 
 [profile.release]
 opt-level = 3
