@@ -231,7 +231,7 @@ static inline bool hasLeading(uchar const *d)
 static inline bool hasLeading3(uchar const *d)
 {
 #pragma unroll
-  for (uint i = 0; i < 2; ++i) {
+  for (uint i = 0; i < 3; ++i) {
     if (d[i] != 0) return false;
   }
   return true;
